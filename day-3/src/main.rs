@@ -7,7 +7,9 @@ fn main() {
     let contents: String =
         fs::read_to_string(file_path).expect("Should have been able to read the file");
 
-    let items = find_items(contents);
+    // part 1 - let items = find_items(contents);
+    // part 2
+    let items = find_groups(contents);
     let count = count_items(items);
 
     println!("Total item count: {}", count);
@@ -29,6 +31,26 @@ fn find_items(contents: String) -> Vec<char> {
 
     return results;
 }
+
+
+fn find_groups(contents: String) -> Vec<char> {
+    let mut results = Vec::new();
+
+
+    // i = current index, item = current item
+    // 'outer: for (i, item) in lines.enumerate(){
+    //     for f in item.chars() {
+    //         if lines.
+    //     }
+    // }
+    // group 3 lines
+    // find letter that is contained in each line
+    // add to char vector
+    // go to next line, that is 3 lines over, so +3
+
+    return results;
+}
+
 
 fn count_items(items: Vec<char>) -> u32 {
     let mut count: u32 = 0;
