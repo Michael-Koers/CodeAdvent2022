@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, ops::Add};
 
 fn main() {
     let file_path: &str = "input.txt";
@@ -27,22 +27,39 @@ fn main() {
         
         let splits = line.split_whitespace().collect::<Vec<&str>>();
 
-        let mut amount = splits.get(1).unwrap().parse::<u32>().unwrap();
+        let mut amount = splits.get(1).unwrap().parse::<usize>().unwrap();
         
         // Adjust to array positions
         let from = splits.get(3).unwrap().parse::<usize>().unwrap() - 1;          
         let to = splits.get(5).unwrap().parse::<usize>().unwrap() - 1;
 
         // Part 1 solution
-        while amount > 0 {
+        // while amount > 0 {
             
-            // We do it like this to prevent references to the stacks in the Vector, otherwise we run into
-            // pointer-issues :)
-            let pop = stacks.get_mut(from).unwrap().pop().unwrap();
-            stacks.get_mut(to).unwrap().push(pop);
-            amount -= 1;
+        //     // We do it like this to prevent references to the stacks in the Vector, otherwise we run into
+        //     // pointer-issues :)
+        //     let pop = stacks.get_mut(from).unwrap().pop().unwrap();
+        //     stacks.get_mut(to).unwrap().push(pop);
+        //     amount -= 1;
+        // }
+
+        // Part 2 solution
+        {
+            
+            let len: usize = stacks.get_mut(from).unwrap().len().clone();
+            let pops = stacks.get_mut(from).unwrap().split_off(len - amount);
+            stacks.get_mut(to).unwrap().extend(pops);
+            
         }
     }
 
     println!("End: {:?}", stacks);
+
+    let mut result: String = String::new();
+    for stack in stacks {
+        result = result.add(stack.last().unwrap());
+    }
+
+    println!("Result: {}", result);
+
 }
