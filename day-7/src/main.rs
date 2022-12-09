@@ -9,39 +9,63 @@ fn main() {
 
     
 
-    traverse_root(contents);
+    let result = traverse_root(contents);
 
+    // println!("Eindresultaat: {:?}", result)
 }
 
 fn traverse_root(contents: String) -> HashMap<String, u32> {
 
     let lines: Vec<&str> = contents.lines().collect::<Vec<&str>>();
-    let lines_incr = lines.iter().skip_while(|l| {println!("iterator: {}", l); l.starts_with("$")});
-    let mut current_directory : &str = "";
+    let mut current_directory : String = String::from("");
 
-    let directories : HashMap<String, u32> = HashMap::new();
+    let mut directories : HashMap<String, u32> = HashMap::new();
 
-    for (mut index, line) in lines_incr.enumerate() {
+    for (index, line) in lines.iter().enumerate() {
 
         // Only 'execute' commands
         if !line.starts_with("$"){
             continue;
         }
 
+        println!("cwd: {}, line: {}", current_directory, line);
+
         match line {
             line if line.contains("ls") => {
-                
+                let mut dir_size : u32 = *directories.get(&current_directory).unwrap_or(&0);
                 let mut inner_index = index.clone() + 1;
-                while !lines.get(inner_index).unwrap().starts_with("$") {
-                    println!("Found dir/file: {}", lines.get(inner_index).unwrap());
-                    inner_index += 1;
+                
+                while !lines.get(inner_index).unwrap_or(&"$").starts_with("$") {
                     
+                    let cmd = lines.get(inner_index).unwrap().split(" ").collect::<Vec<&str>>();
+
+                    if !cmd[0].starts_with("dir"){
+                        dir_size += &dir_size + cmd[0].parse::<u32>().unwrap();
+                    }
+                    
+                    inner_index += 1;
                 }
+
+                directories.insert(current_directory.clone(), dir_size);
             },
             line if line.contains("cd") => {
-                println!("cmd: {} ", line);
-                current_directory = line.split(" ").collect::<Vec<&str>>()[2];
-                println!("Changed to dir {}", current_directory);
+                let dir = line.split(" ").collect::<Vec<&str>>()[2];
+                
+                match dir {
+                    dir if dir.contains("/") => { 
+                        current_directory = "/".to_string();
+                    },
+                    dir if dir.contains("..") => {
+                        let mut dirs = current_directory.split("/").collect::<Vec<&str>>();
+                        dirs.pop();
+                        current_directory = dirs.join("/");
+
+                    }
+                    dir => {
+                        current_directory.push_str(dir);
+                        current_directory.push_str("/");
+                    }
+                }
             },
              _line => {}
         }
@@ -50,10 +74,4 @@ fn traverse_root(contents: String) -> HashMap<String, u32> {
 
     return directories;
 
-}
-
-fn traverse_directory() -> (String, u32) {
-
-
-    return (String::from("/"), 10);
 }
