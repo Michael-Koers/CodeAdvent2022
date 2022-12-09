@@ -1,6 +1,5 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.*;
 
 public class main {
@@ -8,16 +7,24 @@ public class main {
     public static void main(String[] args) throws Exception {
         List<String> lines = Files.readAllLines(Paths.get("input.txt"));
 
-        Map<Integer, Integer> positionMap = new HashMap<>();
+        Set<Integer> positionsVisited = new HashSet<>();
 
         Position head = new Position();
-        Position tail = new Position();
-
-        System.out.printf("Starting positions head: %s and %s%n", head.x, head.y);
-        System.out.printf("Starting positions tail: %s and %s%n", tail.x, tail.y);
+        List<Position> knots = List.of(
+                head,
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position()
+        );
 
         // Include starting position
-        positionMap.putIfAbsent(tail.toString().hashCode(), 1);
+        positionsVisited.add(knots.get(0).toString().hashCode());
 
         for (String line : lines) {
 
@@ -26,8 +33,6 @@ public class main {
 
             for (int i = 0; i < steps; i++) {
 
-                Position previousPosition = new Position(head.x, head.y);
-
                 switch (cmd[0]) {
                     case "D" -> --head.y;
                     case "U" -> ++head.y;
@@ -35,24 +40,23 @@ public class main {
                     case "R" -> ++head.x;
                 }
 
-                if (!adjacentPositions(head, tail)) {
-                    tail.move(previousPosition);
+                for (int j = 1; j < knots.size(); j++) {
 
-                    int occurance = positionMap.getOrDefault(tail.toString().hashCode(), 0);
-                    positionMap.put(tail.toString().hashCode(), ++occurance);
+                    if (!adjacentPositions(knots.get(j - 1), knots.get(j))) {
+                        knots.get(j).follow(knots.get(j - 1));
+
+                        // Final knot
+                        if (j == knots.size() - 1) {
+                            positionsVisited.add(knots.get(j).toString().hashCode());
+                        }
+                    }
                 }
-
-                System.out.printf("Current position head: %s and %s%n", head.x, head.y);
-                System.out.printf("Current position tail: %s and %s%n", tail.x, tail.y);
-                System.out.println("---step over---");
             }
-
         }
 
-        System.out.printf("End positions head: %s and %s%n", head.x, head.y);
-        System.out.printf("End positions tail: %s and %s%n", tail.x, tail.y);
-
+        System.out.printf("Total positions covered: %s", positionsVisited.size());
     }
+
 
     private static boolean adjacentPositions(Position head, Position tail) {
         // if larger than 1, they are no longer adjacent
@@ -75,9 +79,10 @@ class Position {
         this.y = y;
     }
 
-    public void move(Position newPosition) {
-        this.x = newPosition.x;
-        this.y = newPosition.y;
+    public void follow(Position head) {
+        // The use of Signum was stolen from the internet :)
+        this.x += Math.signum(head.x - this.x);
+        this.y += Math.signum(head.y - this.y);
     }
 
     @Override
