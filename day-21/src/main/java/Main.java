@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String file = "input-test.txt";
+        String file = "input.txt";
 
         Map<String, String> monkeys = parseInput(file);
 
@@ -31,26 +31,25 @@ public class Main {
         monkeys.put(rootMonkey, monkeyLeft + " - " + monkeyRight);
 
         long min = 0;
-        long max = Long.MAX_VALUE;
+        // Can't use Long.MAX_VALUE, will cause overflow
+        long max = Integer.MAX_VALUE * 1000000L;
         long mid = 0;
-
-        long valueLeft = determineMonkeyNumber(monkeyLeft, monkeys);
-        long valueRight = determineMonkeyNumber(monkeyRight, monkeys);
-        long diff = valueRight-valueLeft;
+        long rootValue = determineMonkeyNumber(rootMonkey, monkeys);
 
         // Binary Search
-        while (diff != 0){
+        while (rootValue != 0) {
             mid = (min + max) / 2;
             monkeys.put(human, String.valueOf(mid));
 
-            valueLeft = determineMonkeyNumber(monkeyLeft, monkeys);
-            diff = valueLeft - valueRight;
+            rootValue = determineMonkeyNumber(rootMonkey, monkeys);
+
+            System.out.printf("Diff: %s%n", rootValue);
 
             // changing - steady
-            if(diff < 0){
-                min = mid;
-            } else if (diff > 0){
-                max = mid-1;
+            if (rootValue > 0) {
+                min = mid + 1;
+            } else if (rootValue < 0) {
+                max = mid - 1;
             }
         }
         return mid;
