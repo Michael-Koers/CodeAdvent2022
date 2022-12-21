@@ -111,6 +111,11 @@ public class main {
         return nodeMap;
     }
 
+
+
+
+
+
     private static void determineAdjacentNodes(List<List<Node>> nodeList, boolean isAscend) {
         for (int y = 0; y < nodeList.size(); y++) {
             for (int x = 0; x < nodeList.get(y).size(); x++) {
@@ -134,6 +139,16 @@ public class main {
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
 
     public static boolean isValidNode(int x, int y, int destX, int destY, List<List<Node>> nodes, boolean isAscend) {
         // Puzzle 1
