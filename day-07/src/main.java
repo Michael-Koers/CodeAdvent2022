@@ -3,7 +3,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class main {
@@ -47,11 +46,11 @@ public class main {
 
                         String[] dirNodeParts = dirNode.split(" ");
 
-                        if(dirNodeParts[0].equals("dir")){
+                        if (dirNodeParts[0].equals("dir")) {
                             Node newNode = new Node(dirNodeParts[1], currNode);
                             currNode.addNode(newNode);
                             nodeList.add(newNode);
-                        } else{
+                        } else {
                             int fileSize = Integer.parseInt(dirNodeParts[0]);
                             currNode.addSize(fileSize);
                         }
