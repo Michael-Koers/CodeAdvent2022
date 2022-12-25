@@ -36,6 +36,8 @@ public class Main {
 
     public static void puzzle1() throws Exception {
 
+        long startTime = System.nanoTime();
+
         parseInput("input.txt");
 
         // BFS - Step 1: start to finish
@@ -58,7 +60,7 @@ public class Main {
             //printField();
         }
 
-        System.out.printf("Reached the end in %s minutes!%n", minutes);
+        System.out.printf("Reached the end in %s minutes! (system duration: %sms)%n", minutes, (System.nanoTime() - startTime)/1_000_000);
         System.out.println("Oops, elf forgot his snacks... Time to get back to start!");
 
         // BFS - Step 2: finish to start
@@ -74,7 +76,7 @@ public class Main {
             minutes++;
         }
 
-        System.out.printf("Reached the start again in %s minutes!%n", minutes);
+        System.out.printf("Reached the start again in %s minutes! (system duration: %sms)%n", minutes, (System.nanoTime() - startTime)/1_000_000);
         System.out.println("Time to head back to end, AGAIN!");
 
         // BFS - Step 3: start to finish, AGAIN!
@@ -90,7 +92,7 @@ public class Main {
             minutes++;
         }
 
-        System.out.printf("Reached the end, with snacks(!), in %s minutes!%n", minutes);
+        System.out.printf("Reached the end, with snacks(!), in %s minutes! (system duration: %sms)%n", minutes, (System.nanoTime() - startTime)/1_000_000);
     }
 
     private static Set<Point> updatePlayerPosition(Set<Point> paths, Point target) {
