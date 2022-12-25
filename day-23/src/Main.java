@@ -11,8 +11,10 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         long startTime = System.nanoTime();
+        long totalTimeNewLocations = 0;
+        long totalTimeMove = 0;
 
-        List<Elf> elves = parseInput("input-test.txt");
+        List<Elf> elves = parseInput("input.txt");
 
         // For debugging purposes
 //        System.out.println("== Initial State ==");
@@ -27,16 +29,22 @@ public class Main {
         while (!elfsNotMoved) {
             rounds++;
 
+            long startTimeNewLocations = System.nanoTime();
             // Determine new location
             Map<Elf, Point> newElfLocations = determineNewLocations(elves);
+            totalTimeNewLocations += System.nanoTime() - startTimeNewLocations;
+//            System.out.printf("New locations found in %sms%n", (System.nanoTime() - startTimeNewLocations) / 1_000_000);
 
             // For puzzle 2, if no elf wanted to move, we found the answer for round 2
             if (newElfLocations.isEmpty()) {
                 elfsNotMoved = true;
             }
 
+            long startTimeMove = System.nanoTime();
             // Try to move the elfs
             moveElfs(newElfLocations);
+            totalTimeMove += System.nanoTime() - startTimeMove;
+//            System.out.printf("Moved all elves in %sms%n", (System.nanoTime() - startTimeMove) / 1_000_000);
 
             // Show their new locations, debugging purposes
 //            System.out.printf("== End of round %s ==%n", rounds);
@@ -46,8 +54,10 @@ public class Main {
 
         int count = countEmptyGroundTiles(elves);
 
+        // Show us the results
         System.out.printf("Total empty ground tiles: %s%n", count);
-        System.out.printf("First elf stopped moving in round %s (system duration: %sms)%n", rounds, (System.nanoTime() - startTime) / 1_000_000);
+        System.out.printf("First elf stopped moving in round %s (total duration: %sms)%n", rounds, (System.nanoTime() - startTime) / 1_000_000);
+        System.out.printf("Total time finding new locations: %sms, total time moving elfs: %sms%n", totalTimeNewLocations/ 1_000_000, totalTimeMove/ 1_000_000);
     }
 
     private static int countEmptyGroundTiles(List<Elf> elves) {
@@ -155,7 +165,7 @@ public class Main {
             for (Direction currentDirection : elf.directions) {
                 switch (currentDirection) {
                     case NORTH -> {
-                        if (arePositionsFree(elf, elfCurrentLocations, Direction.NORTH, Direction.NORTHWEST, Direction.NORTHEAST)) {
+                        if (arePositionsFree(elf, elfCurrentLocations, currentDirection, Direction.NORTHWEST, Direction.NORTHEAST)) {
                             Point proposedLocation = elf.position.move(currentDirection.direction);
                             elfProposedLocations.put(elf, proposedLocation);
                             elf.moveFirstDirectionToEndOfQueue();
