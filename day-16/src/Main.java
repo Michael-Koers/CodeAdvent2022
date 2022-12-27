@@ -16,8 +16,10 @@ public class Main {
 //        State best = openValves(valves, costs);
 
         // Puzzle 2
+        long startTime = System.nanoTime();
         StateP2 bestWithElephant = openValvesWithElephant(valves, costs);
 
+        System.out.printf("Duration: %sms%n", (System.nanoTime() - startTime) / 1_000_000);
 //        System.out.printf("Best path leads to %s pressure released%n", best.pressure());
         System.out.printf("Best path with elephant leads to %s pressure released%n", bestWithElephant.pressure());
     }
@@ -27,30 +29,42 @@ public class Main {
         Player human = new Player("AA", 26);
         Player elephant = new Player("AA", 26);
 
+        Set<StateP2> cache = new HashSet<>();
+
         LinkedList<StateP2> attempts = new LinkedList<>();
         attempts.add(new StateP2(human, elephant, 0, new ArrayList<>()));
 
+        int cacheHitCounter = 0;
         StateP2 best = null;
 
         while (!attempts.isEmpty()) {
             StateP2 attempt = attempts.poll();
 
+            if (cache.contains(attempt)) {
+                cacheHitCounter++;
+                if (cacheHitCounter % 1000 == 0) {
+                    int bestPressure = best == null ? 0 : best.pressure();
+                    System.out.printf("Cache hits: %s, attempts remaning: %s, best attempt: %s%n", cacheHitCounter, attempts.size(), bestPressure);
+                }
+                continue;
+            }
             // Determine who to move first
             boolean moveHuman = attempt.human().timeLeft() >= attempt.elephant().timeLeft();
 
             // If the one can't move anymore, the other still might
             boolean canMove = movePlayer(attempt, attempts, valves, costs, moveHuman);
 
-            if (!canMove) {
+            if(!canMove) {
                 canMove = movePlayer(attempt, attempts, valves, costs, !moveHuman);
             }
 
-            // If both can't move anymore, check if result is higher than best known result
+            // If both can't move anymore, end attempt, check if result is higher than best known result
             if (!canMove) {
                 if (best == null || attempt.pressure() > best.pressure()) {
                     best = attempt;
                 }
             }
+            cache.add(attempt);
         }
 
         return best;
@@ -66,6 +80,9 @@ public class Main {
                 .filter(e -> toMove.timeLeft() >= e.getValue() + 1)
                 .map(e -> attempt.moveToAndOpen(toMove, e.getKey().to(), e.getValue(), valves.get(e.getKey().to()).flowRate, isHuman))
                 .collect(Collectors.toList());
+
+        // This helps with caching
+        newStates.forEach(ns -> Collections.sort(ns.opened()));
 
         // Add new states to start of the list as to prevent OutOfMemory
         attempts.addAll(0, newStates);
