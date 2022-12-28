@@ -5,14 +5,32 @@ import java.nio.file.Paths;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        String[] gas = parseInput("input.txt");
+        String[] gas = parseInput("input-test.txt");
 
-        dropRocks(2022, gas);
+        // Puzzle 1
+        int height = dropRocks(2022, gas);
+        System.out.printf("Puzzle 1 height: %s%n", height);
+
+        // Puzzle 2
+        // Least common multiple, na dit getal begint het geheel zich te herhalen
+
+        int lcm = Rockshape.values().length * gas.length;
+        long count = 1_000_000_000_000L;
+        long lcm_fit = count / lcm;
+        int lcm_remainder = (int)(count % lcm);
+
+        long height_p2_lcm = dropRocks(lcm, gas);
+        long height_p2_lcm_remainder = dropRocks(lcm_remainder, gas);
+
+        long result = (height_p2_lcm * lcm_fit) + height_p2_lcm_remainder;
+        System.out.printf("Puzzle 2 height: %s%n", result);
+
+
     }
 
-    private static void dropRocks(final int drops, final String[] gas) {
+    private static int dropRocks(final int drops, final String[] gas) {
 
-        byte[] field = new byte[drops * 10];
+        byte[] field = new byte[drops * 5];
 
         int move = 0;
         int dropped = 0;
@@ -46,7 +64,9 @@ public class Main {
 //            printField(field, rock);
         }
 
-        System.out.printf("Dropped %s rocks, tower height is %s rows", dropped, getTopRow(field) + 1);
+        System.out.printf("Dropped %s rocks, tower height is %s rows%n", dropped, getTopRow(field) + 1);
+
+        return getTopRow(field) + 1;
     }
 
     private static void applyJet(Rock rock, String gas) {
@@ -111,7 +131,7 @@ public class Main {
         }
 
         for (int i = rock.getBottomY(); i <= rock.getTopY(); i++) {
-            if ((field[i-1] & rock.patternAtY(i)) != 0) {
+            if ((field[i - 1] & rock.patternAtY(i)) != 0) {
                 return false;
             }
         }
